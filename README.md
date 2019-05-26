@@ -8,3 +8,8 @@ MOSI, MISO, SCK, VCC, RST, GND
 
 MOSI is closest to top of badge.
 
+firmware for esp32 camera board
+
+https://github.com/m5stack
+
+https://www.youtube.com/watch?v=pfQ5VgcnJhg
