@@ -51,9 +51,44 @@
 
 uint16_t eepromWord __attribute__ ( ( section ( ".eeprom" ) ) );
 
- 
+static const uint16_t pattern2[] = {
+	//0b1111111111111111,
+	0b0001000000000000,
+};
+
+static const uint16_t pattern1[] = {
+	//0b1111111111111111,
+	0b0001000000000000,
+	0b0000100000000000,
+	0b0000010000000000,
+	0b0000001000000000,
+	0b0000000100000000,
+	0b0000000010000000,
+	0b0000000001000000,
+	0b0000000000100000,
+	0b0000000000010000,
+	0b0000000000001000,
+	0b0000000000000100,
+	0b0000000000000010,
+	0b0000000000000001,
+	0b0000000000000010,
+	0b0000000000000100,
+	0b0000000000001000,
+	0b0000000000010000,
+	0b0000000000100000,
+	0b0000000001000000,
+	0b0000000010000000,
+	0b0000000100000000,
+	0b0000001000000000,
+	0b0000010000000000,
+	0b0000100000000000,
+	0b0001000000000000,
+	0b0010000000000000,
+};
+
 int main ( void )
 {
+	unsigned char index=0, mode = 0;
 
 	//Initialization routine: Clear watchdog timer-- this can prevent several things from going wrong.
 	MCUSR &= 0xF7;		//Clear WDRF Flag
@@ -77,8 +112,8 @@ int main ( void )
 
 	uint16_t tmp =1;
 
-// test all leds on
-	while( 0 ) {
+	// test all leds on
+	while ( ( PINB & (1<<3)  ) == 0 ) {	// Check if Jumper 1, at location PA1 is shorted
 		PORTB = 0xff;
 		PORTD = 0xff;
 		PORTA =  0xff;
@@ -86,7 +121,7 @@ int main ( void )
 
 	// binary counter
 	for( ;; ) {
-		
+
 		if ( IS_BIT ( tmp, 0 ) ) { SET_BIT ( PORTB, 4 ); }
 
 		if ( IS_BIT ( tmp, 1 ) ) { SET_BIT ( PORTB, 2 ); }
@@ -113,19 +148,43 @@ int main ( void )
 
 		if ( IS_BIT ( tmp, 11 ) ) { SET_BIT ( PORTD, 3 ); }
 		
-		tmp+=1;
 
 		while ( ( PINB & (1<<3)  ) == 0 ) {	// Check if Jumper 1, at location PA1 is shorted
 			// Optional place to do something.  :)
+			mode++;
 		}
+		
 
-		_delay_ms(150);
+
+		switch ( mode ) {
+
+			case 0:
+			
+				tmp = pattern1[index];
+				//tmp+=1;
+				index ++;
+				if ( index == ( sizeof( pattern1)/2) -1 ) {
+					index =0;
+				}
+				//_delay_ms(1500);
+				break;
+
+			case 1:
+				tmp += 1;
+				// clear all leds
+				break;
+			default :
+				mode = 0;
+				break;
+		}
+		
+		_delay_ms(50);
 
 		// reset port b back to an input
 		PORTB = (1<<3);
-		// clear all leds
 		PORTD = 0;
 		PORTA =  0;
+
 	}
 
 	// setup timer callback, add more code here
